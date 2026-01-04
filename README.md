@@ -1,364 +1,51 @@
-# 🎵 Artham - AI Music Companion
+# 🎵 Artham – AI Music Companion
 
-> An intelligent mood-based music chatbot powered by Google Gemini AI that understands your emotions and recommends the perfect songs to match your mood.
+Artham is an intelligent mood-based music chatbot that understands user emotions and recommends music accordingly. Powered by **Google Gemini AI**, it combines empathetic conversation with smart, personalized music playback across multiple languages.
 
-[![Made with Node.js](https://img.shields.io/badge/Made%20with-Node.js-green.svg)](https://nodejs.org/)
-[![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini-blue.svg)](https://ai.google.dev/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
----
-
-## 📖 Table of Contents
-
-- [Features](#-features)
-- [Demo](#-demo)
-- [Installation](#-installation)
-- [Usage](#-usage)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Configuration](#-configuration)
-- [Contributing](#-contributing)
-- [License](#-license)
+![Made with Node.js](https://img.shields.io/badge/Made%20with-Node.js-green.svg)
+![Powered by Gemini](https://img.shields.io/badge/Powered%20by-Google%20Gemini-blue.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 
 ---
 
 ## ✨ Features
 
-### 🎭 Intelligent Mood Detection
-- Understands emotional states: **happy**, **sad**, **stressed**, **lonely**, **motivated**, **angry**
-- Natural language processing for conversational interaction
-- Empathetic responses with emotional support
+### 🎭 Mood Intelligence
+- Detects moods: **happy, sad, stressed, lonely, motivated, angry**
+- Natural language understanding
+- Emotion-aware, supportive responses
 
 ### 🎵 Smart Music Recommendations
-- Mood-based song suggestions from curated database
+- Mood-based song suggestions
 - Multi-language support: **Tamil, Hindi, Malayalam, Telugu, Kannada, English**
-- AI-powered playlist generation
+- AI-assisted playlist generation
 
 ### 🎧 Integrated Music Player
-- Spotify-style bottom bar player
-- YouTube video streaming with auto-play
-- Full playback controls: Play, Pause, Next, Previous
-- Progress bar and volume control
-- Album art and song information display
+- Spotify-style bottom music player
+- YouTube streaming with autoplay
+- Play / Pause / Next / Previous controls
+- Progress bar, volume control, album art display
 
 ### 💬 Conversational AI
 - Powered by **Google Gemini API**
-- Real-time chat via WebSocket
-- Context-aware responses
-- Friendly and supportive tone
+- Real-time chat using **Socket.IO**
+- Context-aware and friendly responses
 
 ---
 
-## 🎬 Demo
-
-**Live Chat Interface:**
-```
-You: I'm feeling stressed today
-Artham: That sounds heavy… I'm here with you.
-        Let the music carry some of that weight.
-        Try these calm tracks: [playlist starts]
-        Take a breath, and press play.
-```
-
-**Music Player:**
-```
-┌─────────────────────────────────────────────────────────┐
-│ 🎵 Now Playing: "Weightless" by Marconi Union           │
-│ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2:45 / 4:30            │
-│ ⏮ ⏸ ⏭                                       🔊 ──────   │
-└─────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🚀 Installation
+## 🚀 Getting Started
 
 ### Prerequisites
 - **Node.js** (v14 or higher)
-- **npm** (comes with Node.js)
-- **Google Gemini API Key** ([Get one free](https://makersuite.google.com/app/apikey))
-
-### Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/kauthammm/Artham-Music-Suggesting-Ai-Bot.git
-   cd Artham-Music-Suggesting-Ai-Bot
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` and add your API key:
-   ```env
-   GEMINI_API_KEY=your_gemini_api_key_here
-   PORT=3000
-   ```
-
-4. **Start the server**
-   ```bash
-   npm start
-   ```
-
-5. **Open in browser**
-   ```
-   http://localhost:3000
-   ```
+- **npm**
+- **Google Gemini API Key**
 
 ---
 
-## 🎯 Usage
+## 📦 Installation
 
-### Basic Commands
-
-**Express your mood:**
+```bash
+git clone https://github.com/kauthammm/Artham-Music-Suggesting-Ai-Bot.git
+cd Artham-Music-Suggesting-Ai-Bot
+npm install
 ```
-"I'm feeling sad"
-"I'm stressed and need calm music"
-"I need motivation"
-```
-
-**Request specific music:**
-```
-"Play happy Tamil songs"
-"I want romantic Hindi music"
-"Energetic English tracks"
-```
-
-**Control playback:**
-- Click **Play/Pause** button
-- Use **Next/Previous** buttons
-- Adjust **volume** slider
-- Click **progress bar** to seek
-
----
-
-## 🛠️ Tech Stack
-
-| Category | Technology |
-|----------|-----------|
-| **Backend** | Node.js, Express.js |
-| **AI Engine** | Google Gemini API |
-| **Real-time** | Socket.IO (WebSocket) |
-| **Frontend** | HTML5, CSS3, Vanilla JavaScript |
-| **Music Player** | YouTube IFrame API |
-| **Database** | JSON file storage |
-
----
-
-## 📁 Project Structure
-
-```
-Artham-Music-Suggesting-Ai-Bot/
-│
-├── 📂 public/                    # Frontend files
-│   ├── index.html               # Main UI
-│   ├── client.js                # Chat & WebSocket logic
-│   ├── spotify-player.js        # Music player component
-│   └── unified-music-player.js  # Player utilities
-│
-├── 📂 src/                       # Backend logic
-│   ├── openaiHandler.js         # Gemini AI integration
-│   ├── songCatalog.js           # Music database
-│   └── simpleResponder.js       # Fallback responses
-│
-├── 📂 data/                      # Data storage
-│   └── songs.json               # Song metadata
-│
-├── server.js                    # Express server
-├── package.json                 # Dependencies
-├── .env                         # Environment variables (not in git)
-├── .env.example                 # Template for .env
-└── README.md                    # This file
-```
-
----
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Required
-GEMINI_API_KEY=your_gemini_api_key
-
-# Optional
-PORT=3000
-YOUTUBE_API_KEY=your_youtube_api_key (optional)
-```
-
-### Mood Mappings
-
-| Mood | Music Type | Example Songs |
-|------|-----------|---------------|
-| **Happy** | Upbeat, feel-good | Energetic tracks |
-| **Sad** | Soft, comforting | Emotional melodies |
-| **Stressed** | Calm, lo-fi, ambient | Relaxing tunes |
-| **Lonely** | Warm vocals, acoustic | Soulful music |
-| **Motivated** | High-energy, inspiring | Pump-up tracks |
-| **Angry** | Controlled energy | Intense focused music |
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Here's how:
-
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
-
-### Areas to Contribute
-- 🎵 Add more songs to the catalog
-- 🌐 Add new language support
-- 🎨 Improve UI/UX design
-- 🐛 Fix bugs
-- 📝 Improve documentation
-
----
-
-## 📝 License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Author
-
-**Kautham**
-- GitHub: [@kauthammm](https://github.com/kauthammm)
-- Repository: [Artham-Music-Suggesting-Ai-Bot](https://github.com/kauthammm/Artham-Music-Suggesting-Ai-Bot)
-
----
-
-## 🙏 Acknowledgments
-
-- [Google Gemini API](https://ai.google.dev/) - AI capabilities
-- [YouTube IFrame API](https://developers.google.com/youtube/iframe_api_reference) - Music streaming
-- [Socket.IO](https://socket.io/) - Real-time communication
-- [Express.js](https://expressjs.com/) - Web framework
-
----
-
-## 📞 Support
-
-If you have any questions or need help:
-- 📧 Open an [Issue](https://github.com/kauthammm/Artham-Music-Suggesting-Ai-Bot/issues)
-- ⭐ Star this repository if you find it helpful!
-
----
-
-<div align="center">
-
-**Made with ❤️ for music lovers**
-
-[⬆ Back to Top](#-artham---ai-music-companion)
-
-</div>
-"search youtube trending music"
-"youtube search bollywood hits"
-"find youtube pop songs"
-```
-
-### Local Music
-```
-"show my local music"
-"play my music"
-```
-
-### Upload Your Music
-1. Click the file input in the music player panel
-2. Select your audio file (MP3, WAV, OGG, M4A)
-3. Add title, mood, and language tags
-4. The file is uploaded and becomes available for recommendations
-
-## 🎵 Music Sources
-
-1. **Curated Database** - 50+ pre-loaded songs across moods and languages
-2. **YouTube** - Live search and streaming from YouTube's catalog
-3. **Local Files** - Your personal music collection uploaded to the app
-4. **User Feedback** - Songs get better rankings based on user ratings
-
-## 🔧 Technical Details
-
-### Backend (Node.js)
-- **Express.js** server with Socket.IO for real-time communication
-- **Multer** for file upload handling
-- **YouTube Search API** integration
-- **JSON-based** data storage for songs and feedback
-- **Learning algorithm** that adjusts song popularity based on user ratings
-
-### Frontend
-- **Responsive design** with grid layout
-- **WebSocket** client for real-time chat
-- **HTML5 audio player** for local files
-- **YouTube embed** for video playback
-- **File upload** with drag-and-drop support
-
-### File Structure
-```
-📁 Chatbot/
-├── 📄 server.js          # Main server file
-├── 📄 package.json       # Dependencies
-├── 📄 seed_songs.json    # Initial song database
-├── 📁 public/            # Frontend files
-│   ├── 📄 index.html     # Main UI
-│   └── 📄 client.js      # Client-side logic
-├── 📁 data/              # Runtime data
-│   ├── 📄 songs.json     # Song database
-│   └── 📄 feedback.json  # User feedback
-└── 📁 music/             # Uploaded music files
-```
-
-## 🎮 API Endpoints
-
-- `POST /api/recommend` - Get song recommendations
-- `POST /api/feedback` - Submit song ratings
-- `POST /api/upload` - Upload music files
-- `GET /api/youtube/search` - Search YouTube
-- `GET /api/local-music` - Get uploaded files
-- `GET /music/:filename` - Stream local audio files
-
-## 🌟 Advanced Features
-
-### Learning System
-The bot learns from every interaction:
-- **Star ratings** (1-5) improve song rankings
-- **Play frequency** affects recommendations
-- **Mood associations** get stronger with feedback
-- **Language preferences** are remembered
-
-### Multi-platform Streaming
-- **YouTube** - Instant access to millions of songs
-- **Local storage** - Your personal collection always available
-- **Hybrid recommendations** - Combines all sources for best results
-
-## 🚀 Next Steps & Enhancements
-
-**Ready to extend:** 
-- Add Spotify/Apple Music integration
-- Implement user accounts and playlists
-- Add collaborative filtering
-- Include lyrics display
-- Support for podcasts and audiobooks
-
-**Current limitations:**
-- YouTube playback requires internet connection
-- Local files are stored on server (not cloud)
-- No user authentication (single-user mode)
-
-## 🎵 Enjoy Your Music!
-
-Your enhanced chatbot is now running with full streaming capabilities! Upload your favorite songs, search YouTube, and let the AI learn your musical preferences. 🎶#   A r t h a m - M u s i c - S u g g e s t i n g - A i - B o t 
- 
- 
