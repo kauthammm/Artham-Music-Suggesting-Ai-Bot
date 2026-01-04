@@ -1,0 +1,9 @@
+[
+  { "id": "s1", "title": "Happy Tune", "artist": "Sunshine Band", "language": "English", "moods": ["happy", "energetic"], "popularity": 80 },
+  { "id": "s2", "title": "Tranquil Night", "artist": "Calm Collective", "language": "English", "moods": ["calm", "relaxed"], "popularity": 65 },
+  { "id": "s3", "title": "Dil Se", "artist": "Bollywood Stars", "language": "Hindi", "moods": ["romantic", "happy"], "popularity": 90 },
+  { "id": "s4", "title": "Fiesta", "artist": "Latin Vibes", "language": "Spanish", "moods": ["party", "energetic"], "popularity": 75 },
+  { "id": "s5", "title": "Blue Rain", "artist": "Soul Singer", "language": "English", "moods": ["sad", "melancholy"], "popularity": 70 },
+  { "id": "s6", "title": "Sukoon", "artist": "Indie Voices", "language": "Hindi", "moods": ["calm", "relaxed"], "popularity": 60 },
+  { "id": "s7", "title": "Alegria", "artist": "Fiesta Band", "language": "Spanish", "moods": ["happy", "party"], "popularity": 72 }
+]

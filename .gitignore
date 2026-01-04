@@ -1,0 +1,55 @@
+.idea
+.vscode
+tests/*.json
+tests/setup/*.json
+docs/build
+docs/source/reference/api
+test.cfg
+**.mp3
+.coverage
+**/__pycache__/
+venv*/
+*.egg-info/
+build
+dist
+.pdm-python
+.venv
+*.log
+*.xml
+.env
+
+# Node.js
+node_modules/
+package-lock.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Unwanted folders
+gpt4free-main/
+python-genai-main/
+spotify-qt-develop/
+SpotifyClone-main/
+*.zip
+wpp-chatgpt-master/
+ytmusicapi/
+
+# Backup files
+*_backup.*
+server_backup.js
+server_simple.js
+server_enhanced.js
+
+# Documentation (optional - uncomment if you want to exclude)
+# BEFORE_AFTER.md
+# CHATGPT_INTEGRATION_GUIDE.md
+# GEMINI_SETUP.md
+# GET_GROQ_KEY.md
+# IMPLEMENTATION_SUMMARY.md
+# NETLIFY_DEPLOYMENT.md
+# PLAYLIST_COMMANDS.md
+# QUICK_START.md
+# README_FEATURES.md
+# SETUP_GUIDE.md
+# SPOTIFY_SETUP.md

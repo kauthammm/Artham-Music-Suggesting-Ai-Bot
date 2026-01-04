@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artham Admin - Server Diagnostics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .stat:last-child {
+            border-bottom: none;
+        }
+        .stat-label {
+            color: #666;
+            font-weight: 500;
+        }
+        .stat-value {
+            color: #333;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .playlist-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .playlist-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .playlist-item:hover {
+            background: #e3f2fd;
+            transform: translateX(5px);
+        }
+        .playlist-title {
+            font-weight: 600;
+            color: #333;
+        }
+        .playlist-count {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .refresh-btn {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.3);
+            display: block;
+            margin: 20px auto;
+        }
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+        .badge-language {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .badge-mood {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .last-updated {
+            text-align: center;
+            color: white;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Artham Admin Dashboard</h1>
+        
+        <button class="refresh-btn" onclick="loadDiagnostics()">🔄 Refresh Data</button>
+        
+        <div id="loading" class="loading">Loading diagnostics...</div>
+        
+        <div id="content" style="display:none;">
+            <div class="grid">
+                <div class="card">
+                    <h2>⚙️ Server Status</h2>
+                    <div class="stat">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value" style="color: #4caf50;">Online</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Uptime</span>
+                        <span class="stat-value" id="uptime">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Memory Usage</span>
+                        <span class="stat-value" id="memory">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Last Check</span>
+                        <span class="stat-value" id="timestamp">-</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🎶 Song Catalog</h2>
+                    <div class="stat">
+                        <span class="stat-label">Total Songs</span>
+                        <span class="stat-value" id="totalSongs">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Total Playlists</span>
+                        <span class="stat-value" id="totalPlaylists">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Languages</span>
+                        <span class="stat-value" id="languageCount">-</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-label">Moods</span>
+                        <span class="stat-value" id="moodCount">-</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🌐 Languages</h2>
+                    <div id="languages"></div>
+                </div>
+
+                <div class="card">
+                    <h2>😊 Moods</h2>
+                    <div id="moods"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📋 Available Playlists</h2>
+                <div class="playlist-list" id="playlists"></div>
+            </div>
+        </div>
+
+        <div class="last-updated" id="lastUpdated"></div>
+    </div>
+
+    <script>
+        async function loadDiagnostics() {
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('content');
+            
+            loading.style.display = 'block';
+            content.style.display = 'none';
+            
+            try {
+                const response = await fetch('/diagnostics');
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayDiagnostics(data);
+                    loading.style.display = 'none';
+                    content.style.display = 'block';
+                }
+            } catch (error) {
+                loading.innerHTML = `<div style="color: #f44336;">❌ Error loading diagnostics: ${error.message}</div>`;
+            }
+        }
+
+        function displayDiagnostics(data) {
+            // Server status
+            const hours = Math.floor(data.uptimeSeconds / 3600);
+            const minutes = Math.floor((data.uptimeSeconds % 3600) / 60);
+            document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
+            document.getElementById('memory').textContent = `${data.memoryMB} MB`;
+            document.getElementById('timestamp').textContent = new Date(data.time).toLocaleTimeString();
+
+            // Catalog stats
+            document.getElementById('totalSongs').textContent = data.totalSongs;
+            document.getElementById('totalPlaylists').textContent = data.playlistTotal;
+            document.getElementById('languageCount').textContent = Object.keys(data.languages).length;
+            document.getElementById('moodCount').textContent = Object.keys(data.moods).length;
+
+            // Languages
+            const languagesDiv = document.getElementById('languages');
+            languagesDiv.innerHTML = '';
+            Object.entries(data.languages).forEach(([lang, count]) => {
+                const stat = document.createElement('div');
+                stat.className = 'stat';
+                stat.innerHTML = `
+                    <span class="stat-label">${lang}</span>
+                    <span class="stat-value">${count}</span>
+                `;
+                languagesDiv.appendChild(stat);
+            });
+
+            // Moods (top 10)
+            const moodsDiv = document.getElementById('moods');
+            moodsDiv.innerHTML = '';
+            const topMoods = Object.entries(data.moods)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            topMoods.forEach(([mood, count]) => {
+                const stat = document.createElement('div');
+                stat.className = 'stat';
+                stat.innerHTML = `
+                    <span class="stat-label">${mood}</span>
+                    <span class="stat-value">${count}</span>
+                `;
+                moodsDiv.appendChild(stat);
+            });
+
+            // Playlists
+            const playlistsDiv = document.getElementById('playlists');
+            playlistsDiv.innerHTML = '';
+            data.topPlaylists.forEach(playlist => {
+                const item = document.createElement('div');
+                item.className = 'playlist-item';
+                item.onclick = () => openPlaylist(playlist.mood, playlist.language);
+                item.innerHTML = `
+                    <div>
+                        <div class="playlist-title">${playlist.title}</div>
+                        <span class="badge badge-mood">${playlist.mood}</span>
+                        <span class="badge badge-language">${playlist.language}</span>
+                    </div>
+                    <span class="playlist-count">${playlist.count} songs</span>
+                `;
+                playlistsDiv.appendChild(item);
+            });
+
+            // Last updated
+            document.getElementById('lastUpdated').textContent = 
+                `Last updated: ${new Date().toLocaleString()}`;
+        }
+
+        function openPlaylist(mood, language) {
+            const url = `/api/playlist/${mood}/${language}`;
+            window.open(url, '_blank');
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadDiagnostics, 30000);
+
+        // Initial load
+        loadDiagnostics();
+    </script>
+</body>
+</html>

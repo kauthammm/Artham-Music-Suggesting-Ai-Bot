@@ -1,0 +1,268 @@
+[
+  {
+    "id": "tamil_ar_rahman_romantic",
+    "name": "A.R. Rahman - Romantic Hits",
+    "language": "tamil",
+    "artist": "A.R. Rahman",
+    "mood": "romantic",
+    "songs": [
+      {"title": "Uyire Uyire", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kadhal Rojave", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Malargale Malargale", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Snehithane Snehithane", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Nenjukulle Nenjukulle", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kannedhire Thondrinal", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Pachai Kiligal", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Pudhu Vellai Mazhai", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Thiruda Thiruda", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Ennavale Adi Ennavale", "artist": "A.R. Rahman", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "tamil_spb_happy",
+    "name": "S.P. Balasubrahmanyam - Happy Songs",
+    "language": "tamil",
+    "artist": "S.P. Balasubrahmanyam",
+    "mood": "happy",
+    "songs": [
+      {"title": "Chinna Chinna Aasai", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Thanga Thamarai", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Mannil Indha Kadhal", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Raasaave Unna Vida", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Sundari Kannal Oru Sethi", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Paadum Vaanampadi", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Nilave Vaa", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Poove Poochudava", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Vaanile Thenila", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kanmani Anbodu", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "tamil_ilaiyaraaja_energetic",
+    "name": "Ilaiyaraaja - Energetic Classics",
+    "language": "tamil",
+    "artist": "Ilaiyaraaja",
+    "mood": "energetic",
+    "songs": [
+      {"title": "Ilaya Nila Pozhigiratha", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Rakkamma Kaiya Thattu", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Nilaave Vaa", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Mandram Vandha", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Raja Rajathi Raja", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Vaanile Thenmozhi", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Ooru Vittu Ooru Vanthu", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Anni Kizhamai", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Senthazham Poovil", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kadhal Oviyam", "artist": "Ilaiyaraaja", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "hindi_kishore_romantic",
+    "name": "Kishore Kumar - Romantic Classics",
+    "language": "hindi",
+    "artist": "Kishore Kumar",
+    "mood": "romantic",
+    "songs": [
+      {"title": "Kya Hua Tera Wada", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Pal Pal Dil Ke Paas", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Mere Sapno Ki Rani", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Chingari Koi Bhadke", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Yeh Sham Mastani", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Tere Bina Zindagi Se", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Dil Kya Kare", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Neele Neele Ambar Par", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Rimjhim Gire Sawan", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Pyaar Deewana Hota Hai", "artist": "Kishore Kumar", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "hindi_rafi_happy",
+    "name": "Mohammed Rafi - Joyful Hits",
+    "language": "hindi",
+    "artist": "Mohammed Rafi",
+    "mood": "happy",
+    "songs": [
+      {"title": "Gulabi Aankhein Jo Teri Dekhi", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Bahon Ke Darmiyan", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Chaudhvin Ka Chand", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Dekhi Zamaane Ki Yaari", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Ehsan Tera Hoga Mujh Par", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kya Se Kya Ho Gaya", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Likhe Jo Khat Tujhe", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Main Zindagi Ka Saath", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Parda Hai Parda", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Yeh Reshmi Zulfein", "artist": "Mohammed Rafi", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "malayalam_yesudas_devotional",
+    "name": "K.J. Yesudas - Devotional Songs",
+    "language": "malayalam",
+    "artist": "K.J. Yesudas",
+    "mood": "relaxed",
+    "songs": [
+      {"title": "Harivarasanam", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Sriman Narayana", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Raghupati Raghava", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Jagadananda Karaka", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Murugan Adimai", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Gopi Gopika", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Swami Namo Namo", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Bhagavan Hrudayam", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Om Namah Shivaya", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Krishna Nee Begane Baro", "artist": "K.J. Yesudas", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "malayalam_chithra_romantic",
+    "name": "K.S. Chithra - Romantic Melodies",
+    "language": "malayalam",
+    "artist": "K.S. Chithra",
+    "mood": "romantic",
+    "songs": [
+      {"title": "Varavelan Kaatte", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Manjal Prasadam", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Ente Kannil Ninakkay", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Raagam Thedum Pallavi", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Sneham Ennalum", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Thaniye Thananthaani", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Uyiril Thodum", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Vellithira Kombathu", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Karutha Penne", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Megham Kottotte", "artist": "K.S. Chithra", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "kannada_rajkumar_energetic",
+    "name": "Dr. Rajkumar - Energetic Hits",
+    "language": "kannada",
+    "artist": "Dr. Rajkumar",
+    "mood": "energetic",
+    "songs": [
+      {"title": "Huttidare Kannada", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Baare Nanna Muddina Rani", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Yaava Janmada Maithri", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Jeeva Hoovagide", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Naadamaya Ee Lokavella", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Bangarada Manushya", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Raghupati Raghava Raja Ram", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Maneye Mantralaya", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Gelathi Ninnada Kanoonu", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kannada Naadu Nudi", "artist": "Dr. Rajkumar", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "kannada_pbsrinivas_romantic",
+    "name": "P.B. Srinivas - Romantic Collection",
+    "language": "kannada",
+    "artist": "P.B. Srinivas",
+    "mood": "romantic",
+    "songs": [
+      {"title": "Banallu Neene Buviyalli", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Cheluvina Chittara", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Doorada Betta", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Ellellane Chellinamma", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Hrudaya Geethe", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Inthininte Moodalla", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kallara Chandira", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Maleyali Jotheyali", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Naanu Nanna Kanasu", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Preeti Madu Tamashe Nodu", "artist": "P.B. Srinivas", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "telugu_spb_romantic",
+    "name": "S.P. Balasubrahmanyam - Telugu Romantic",
+    "language": "telugu",
+    "artist": "S.P. Balasubrahmanyam",
+    "mood": "romantic",
+    "songs": [
+      {"title": "Shankarabharanam", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Aakasamlo Sagam", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Swathi Kiranam", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Meghasandesham", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Keeravani", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Sagara Sangamam", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Swayamvaram", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Mayuri", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Anveshana", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Sirivennela", "artist": "S.P. Balasubrahmanyam", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "telugu_janaki_happy",
+    "name": "S. Janaki - Joyful Telugu Songs",
+    "language": "telugu",
+    "artist": "S. Janaki",
+    "mood": "happy",
+    "songs": [
+      {"title": "Andala Ramudu", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Bharatamuni Padya", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Chakkani Raja", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Devadas Choude", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Ee Reyi Teeyanidi", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Gundello Emundo", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Hrudayam Ekkadunnadi", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Intiki Deepam Illalu", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Jagame Maya", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Kalyanam Mudhal Kadhal", "artist": "S. Janaki", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "english_beatles_happy",
+    "name": "The Beatles - Feel Good Hits",
+    "language": "english",
+    "artist": "The Beatles",
+    "mood": "happy",
+    "songs": [
+      {"title": "Here Comes The Sun", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Good Day Sunshine", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Yellow Submarine", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "All You Need Is Love", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Penny Lane", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Lovely Rita", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "With A Little Help From My Friends", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Getting By", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "I Want To Hold Your Hand", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Love Me Do", "artist": "The Beatles", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "english_elvis_romantic",
+    "name": "Elvis Presley - Love Songs",
+    "language": "english",
+    "artist": "Elvis Presley",
+    "mood": "romantic",
+    "songs": [
+      {"title": "Can't Help Falling in Love", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Love Me Tender", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Are You Lonesome Tonight", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "It's Now or Never", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Blue Moon", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Always on My Mind", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Wise Men Say", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Hawaiian Wedding Song", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "I Can't Stop Loving You", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Unchained Melody", "artist": "Elvis Presley", "youtube": "dQw4w9WgXcQ"}
+    ]
+  },
+  {
+    "id": "english_queen_energetic",
+    "name": "Queen - High Energy Anthems",
+    "language": "english",
+    "artist": "Queen",
+    "mood": "energetic",
+    "songs": [
+      {"title": "We Will Rock You", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Don't Stop Me Now", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "We Are The Champions", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Another One Bites The Dust", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Under Pressure", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Radio Ga Ga", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "I Want It All", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Hammer to Fall", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "One Vision", "artist": "Queen", "youtube": "dQw4w9WgXcQ"},
+      {"title": "Keep Yourself Alive", "artist": "Queen", "youtube": "dQw4w9WgXcQ"}
+    ]
+  }
+]
