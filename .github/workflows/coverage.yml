@@ -44,7 +44,7 @@ jobs:
         pdm run pytest --junitxml=test-results.xml
         pdm run coverage xml
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       if: ${{ !cancelled() }}
       with:
         flags: unittests
