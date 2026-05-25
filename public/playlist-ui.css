@@ -160,6 +160,15 @@
   background: #282828;
 }
 
+.song-row.playing {
+  background: rgba(29, 185, 84, 0.15);
+  border-left: 3px solid #1db954;
+}
+
+.song-row.playing .song-title-text {
+  color: #1db954;
+}
+
 .col-number {
   position: relative;
   display: flex;
@@ -197,6 +206,17 @@
   color: #fff;
   font-size: 16px;
   font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.song-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
 .song-movie {
@@ -248,6 +268,17 @@
 
 .action-btn:hover {
   color: #fff;
+}
+
+.spotify-preview {
+  margin-bottom: 16px;
+}
+
+.spotify-preview-inner {
+  background: #111;
+  border: 1px solid #282828;
+  border-radius: 12px;
+  padding: 12px;
 }
 
 /* No Songs Message */

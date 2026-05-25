@@ -43,6 +43,7 @@ Artham is a full-featured AI-powered music companion that combines ChatGPT-like 
 - Best match selection using scoring algorithm
 - Video options with quality filtering
 - Auto-play playlists with transitions
+- YouTube Data API v3 enrichment with duration + thumbnails
 
 #### Spotify Integration
 - OAuth authentication flow

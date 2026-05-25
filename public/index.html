@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Artham - Premium Tamil Music AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -13,9 +13,9 @@
             --accent-bg: #252535;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --accent-gradient: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%);
-            --gold-gradient: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            --primary-gradient: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);
+            --accent-gradient: linear-gradient(135deg, #ff8a00 0%, #e52e71 100%);
+            --gold-gradient: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.8);
             --text-muted: rgba(255, 255, 255, 0.6);
@@ -35,12 +35,12 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--primary-bg);
             background-image: 
-                radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 80%, rgba(255, 107, 107, 0.05) 0%, transparent 50%);
+                radial-gradient(circle at 20% 50%, rgba(0, 198, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 138, 0, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 114, 255, 0.08) 0%, transparent 50%);
             min-height: 100vh;
             color: var(--text-primary);
             overflow-x: hidden;
@@ -76,7 +76,7 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.8rem;
             font-weight: 800;
             color: var(--text-primary);
@@ -144,7 +144,7 @@
 
         .section-title {
             color: var(--text-primary);
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.2rem;
             font-weight: 600;
             margin-bottom: 1.5rem;
@@ -284,7 +284,7 @@
         }
 
         .chat-title {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.6rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
@@ -354,6 +354,33 @@
             font-weight: 500;
         }
 
+        .message.streaming .message-content {
+            opacity: 0.85;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            gap: 6px;
+            align-items: center;
+            height: 12px;
+        }
+
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+            animation: typingBounce 1.2s infinite ease-in-out;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.15s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes typingBounce {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+            40% { transform: translateY(-4px); opacity: 1; }
+        }
+
         .message.user .message-content {
             background: var(--primary-gradient);
             border-color: transparent;
@@ -384,7 +411,7 @@
         .playlist-meta {
             color: #666;
             font-size: 0.85rem;
-            margin-bottom: 0.75rem;
+                font-family: 'Space Grotesk', sans-serif;
         }
 
         .platform-links {
@@ -705,7 +732,7 @@
 
         .player-header {
             color: var(--text-primary);
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.3rem;
             font-weight: 600;
             margin-bottom: 2rem;
@@ -1145,7 +1172,7 @@
             display: flex;
             gap: 0.75rem;
             margin-bottom: 1.5rem;
-        }
+                font-family: 'Space Grotesk', sans-serif;
 
         .play-all-btn, .shuffle-btn {
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
@@ -2540,8 +2567,8 @@
                     <button class="mood-btn" data-mood="romantic">
                         <i class="fas fa-heart"></i> Romantic
                     </button>
-                    <button class="mood-btn" data-mood="relaxed">
-                        <i class="fas fa-leaf"></i> Relaxed
+                    <button class="mood-btn" data-mood="relaxing">
+                        <i class="fas fa-leaf"></i> Relaxing
                     </button>
                     <button class="mood-btn" data-mood="angry">
                         <i class="fas fa-fire"></i> Angry
@@ -2670,6 +2697,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     
     <!-- NEW: Unified Music Player for AI-controlled online streaming -->
+    <script src="spotify-player.js"></script>
     <script src="unified-music-player.js"></script>
     
     <!-- Spotify-Style Playlist UI -->

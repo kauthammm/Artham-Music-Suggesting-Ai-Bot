@@ -3,8 +3,8 @@
  * Lightweight GPT-4 Free endpoint for quick responses.
  */
 
-const Groq = require('groq-sdk');
-const { extractMusicControl, processChat } = require('./openaiHandler');
+let Groq = null;
+const { extractMusicControl, processChat, generateLocalFallback } = require('./openaiHandler');
 
 // Simple key validator
 function validateGroqKey(key) {
@@ -14,7 +14,7 @@ function validateGroqKey(key) {
 }
 
 // Initialize Groq client (empty key allowed; we'll detect before use)
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
+let groq = null;
 
 // Lightweight system preface emphasizing brevity
 const SIMPLE_SYSTEM_PROMPT = `You are Artham-Lite, a concise AI assistant.
@@ -27,15 +27,34 @@ async function simpleRespond(userText) {
   // Check if API key is configured
   const hasKey = validateGroqKey(process.env.GROQ_API_KEY);
   if (!hasKey) {
+    const fallback = generateLocalFallback([{ role: 'user', content: userText }], {});
     return {
-      text: "🔑 Please add your FREE Groq API key to .env file!\n\nGet it at: https://console.groq.com/keys\n\nTakes only 30 seconds! ✨",
-      musicControl: null,
-      modelUsed: 'fallback',
-      needsApiKey: true
+      text: fallback.text,
+      musicControl: fallback.musicControl,
+      modelUsed: 'local-fallback',
+      offlineFallback: true
     };
   }
   
   try {
+    if (!Groq) {
+      try {
+        Groq = require('groq-sdk');
+      } catch (err) {
+        const fallback = generateLocalFallback([{ role: 'user', content: userText }], {}, 'no_key');
+        return {
+          text: fallback.text,
+          musicControl: fallback.musicControl,
+          modelUsed: 'local-fallback',
+          offlineFallback: true
+        };
+      }
+    }
+
+    if (!groq) {
+      groq = new Groq({ apiKey: process.env.GROQ_API_KEY || '' });
+    }
+
     const messages = [
       { role: 'system', content: SIMPLE_SYSTEM_PROMPT },
       { role: 'user', content: userText }

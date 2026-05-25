@@ -1,5 +1,9 @@
 const socket = io();
 
+const STREAMING_ENABLED = true;
+const LOCAL_MOOD_ANALYZER = false;
+const streamMessages = new Map();
+
 let selectedMood = null;
 let selectedLanguage = null;
 
@@ -13,23 +17,32 @@ let playlistUI = null;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Page loaded, initializing...');
     
-    // Create unified music player
-    if (typeof UnifiedMusicPlayer !== 'undefined') {
+    // Prefer Spotify-style player if available
+    if (window.spotifyPlayer) {
+        musicPlayer = window.spotifyPlayer;
+        console.log('Spotify-style player detected');
+    } else if (window.musicPlayer) {
+        musicPlayer = window.musicPlayer;
+        console.log('Music player adapter detected');
+    } else if (typeof UnifiedMusicPlayer !== 'undefined') {
         musicPlayer = new UnifiedMusicPlayer();
-        window.musicPlayer = musicPlayer; // Make it globally accessible
+        window.musicPlayer = musicPlayer;
         console.log('Unified Music Player initialized');
-        
-        // Set up event handlers
-        musicPlayer.onSongChange = (song) => {
-            console.log('Now playing:', song.title);
-            updateNowPlayingUI(song);
-        };
-        
-        musicPlayer.onPlayStateChange = (isPlaying) => {
-            console.log('Play state:', isPlaying);
-        };
     } else {
-        console.error('UnifiedMusicPlayer not loaded!');
+        console.error('No music player available');
+    }
+
+    // Set up event handlers if supported
+    if (musicPlayer && typeof musicPlayer.onSongChange !== 'undefined') {
+        musicPlayer.onSongChange = (song) => {
+            if (song && song.title) {
+                console.log('Now playing:', song.title);
+                updateNowPlayingUI(song);
+                if (playlistUI && playlistUI.setPlayingSong) {
+                    playlistUI.setPlayingSong(song.id);
+                }
+            }
+        };
     }
     
     // Create Spotify-Style Playlist UI
@@ -147,28 +160,15 @@ window.handleChatSubmit = async function(e) {
             return;
         }
         
-        // MOOD-BASED MUSIC SYSTEM - Analyze emotion and play real songs
-        if (window.moodAnalyzer && window.realMusicPlayer) {
-            // Analyze the user's mood from their message
+        // Optional local mood analyzer (disabled by default for production)
+        if (LOCAL_MOOD_ANALYZER && window.moodAnalyzer && window.realMusicPlayer) {
             const analysis = window.moodAnalyzer.analyzeMessage(message);
-            
-            // Show empathetic response
             addMessage(analysis.response, 'bot');
-            
-            // Show mood report if confidence is high
             if (analysis.confidence > 0.5) {
-                setTimeout(() => {
-                    window.moodAnalyzer.displayMoodReport(analysis.moodReport);
-                }, 500);
-                
-                // Show song recommendations
+                setTimeout(() => window.moodAnalyzer.displayMoodReport(analysis.moodReport), 500);
                 if (analysis.songRecommendations.length > 0) {
-                    setTimeout(() => {
-                        displaySongRecommendations(analysis.songRecommendations, analysis.mood);
-                    }, 1000);
+                    setTimeout(() => displaySongRecommendations(analysis.songRecommendations, analysis.mood), 1000);
                 }
-                
-                return; // Stop here, don't send to server
             }
         }
         
@@ -250,7 +250,8 @@ window.handleChatSubmit = async function(e) {
         socket.emit('chat', {
             text: message,
             mood: selectedMood,
-            language: selectedLanguage
+            language: selectedLanguage,
+            stream: STREAMING_ENABLED
         });
         
         console.log('Message sent to server');
@@ -297,10 +298,12 @@ function showOfflineBanner(reason) {
         document.body.appendChild(banner);
     }
     const reasonMap = {
-        no_key: 'OpenAI key missing – using local fallback',
-        quota_429: 'OpenAI quota exceeded – temporary local mode',
+        no_key: 'AI key missing – using local fallback',
+        quota_429: 'AI quota exceeded – temporary local mode',
         cooldown: 'Cooling down after quota error – retry later',
-        error: 'OpenAI error – fallback mode active'
+        network: 'Network issue – fallback mode active',
+        error: 'AI error – fallback mode active',
+        offline: 'Offline mode active'
     };
     banner.textContent = `⚠ AI Fallback Active: ${reasonMap[reason] || 'offline'}`;
 }
@@ -472,7 +475,7 @@ async function requestPlaylists(mood, language) {
     
     // Fetch and display Spotify-style playlist
     if (playlistUI) {
-        await playlistUI.displayPlaylist(mood, language);
+        await playlistUI.displayPlaylist(mood, language, true);
     }
     
     // Also send to chat for AI response
@@ -484,25 +487,31 @@ async function requestPlaylists(mood, language) {
 }
 
 // Add message to chat
-function addMessage(text, sender) {
+function addMessage(text, sender, options = {}) {
     const messages = document.getElementById('chatMessages');
     if (!messages) {
         console.error('Chat messages container not found!');
         return;
     }
     
+    const normalizedSender = sender === 'user' ? 'user' : 'bot';
     const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${sender}`;
+    messageDiv.className = `message ${normalizedSender}`;
     
     const avatar = document.createElement('div');
     avatar.className = 'message-avatar';
-    avatar.innerHTML = sender === 'user' ? 
+    avatar.innerHTML = normalizedSender === 'user' ? 
         '<i class="fas fa-user"></i>' : 
         '<i class="fas fa-robot"></i>';
     
     const content = document.createElement('div');
     content.className = 'message-content';
-    content.textContent = text;
+    if (options.animate && normalizedSender === 'bot') {
+        content.textContent = '';
+        typeText(content, text, options.speed || 18);
+    } else {
+        content.textContent = text;
+    }
     
     messageDiv.appendChild(avatar);
     messageDiv.appendChild(content);
@@ -510,6 +519,67 @@ function addMessage(text, sender) {
     
     // Scroll to bottom
     messages.scrollTop = messages.scrollHeight;
+}
+
+function typeText(element, text, speed = 18) {
+    let index = 0;
+    const timer = setInterval(() => {
+        element.textContent += text.charAt(index);
+        index += 1;
+        if (index >= text.length) {
+            clearInterval(timer);
+        }
+    }, speed);
+}
+
+function ensureStreamingMessage(streamId) {
+    if (streamMessages.has(streamId)) return streamMessages.get(streamId);
+
+    const messages = document.getElementById('chatMessages');
+    if (!messages) return null;
+
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot streaming';
+    messageDiv.dataset.streamId = streamId;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'message-avatar';
+    avatar.innerHTML = '<i class="fas fa-robot"></i>';
+
+    const content = document.createElement('div');
+    content.className = 'message-content';
+    content.innerHTML = '<span class="typing-indicator"><span></span><span></span><span></span></span>';
+
+    messageDiv.appendChild(avatar);
+    messageDiv.appendChild(content);
+    messages.appendChild(messageDiv);
+    messages.scrollTop = messages.scrollHeight;
+
+    const state = { container: messageDiv, content, text: '' };
+    streamMessages.set(streamId, state);
+    return state;
+}
+
+function updateStreamingMessage(streamId, delta) {
+    const state = ensureStreamingMessage(streamId);
+    if (!state) return;
+    state.text += delta;
+    state.content.textContent = state.text;
+}
+
+function finalizeStreamingMessage(streamId, finalText) {
+    const state = ensureStreamingMessage(streamId);
+    if (!state) return;
+    state.text = finalText || state.text;
+    state.content.textContent = state.text;
+    state.container.classList.remove('streaming');
+}
+
+function removeStreamingMessage(streamId) {
+    const state = streamMessages.get(streamId);
+    if (!state) return;
+    state.container.remove();
+    streamMessages.delete(streamId);
 }
 
 // Add bot message with HTML content
@@ -806,13 +876,19 @@ socket.on('bot', function(data) {
     
     // Display the AI text response
     if (data.text) {
-        addMessage(data.text, 'bot');
+        addMessage(data.text, 'bot', { animate: true });
     }
     
     // Handle music-control commands from AI
     if (data.musicControl) {
         console.log('Processing music-control:', data.musicControl);
         processMusicControl(data.musicControl);
+    }
+
+    if (data.offlineFallback) {
+        showOfflineBanner(data.fallbackReason || 'error');
+    } else {
+        removeOfflineBanner();
     }
     
     // Legacy handlers for backwards compatibility
@@ -841,12 +917,68 @@ socket.on('bot', function(data) {
     }
 });
 
+socket.on('bot:typing', function(data) {
+    if (!data || !data.id) return;
+    if (data.active) {
+        ensureStreamingMessage(data.id);
+    }
+});
+
+socket.on('bot:partial', function(data) {
+    if (!data || !data.id || !data.text) return;
+    updateStreamingMessage(data.id, data.text);
+});
+
+socket.on('bot:done', function(data) {
+    if (!data || !data.id) return;
+    finalizeStreamingMessage(data.id, data.text || '');
+
+    if (data.musicControl) {
+        if (playlistUI && data.musicControl.songs && data.musicControl.songs.length > 0) {
+            const playlist = {
+                success: true,
+                title: data.musicControl.mood && data.musicControl.language
+                    ? `${data.musicControl.mood} ${data.musicControl.language} Mix`
+                    : 'Artham Mix',
+                description: `${data.musicControl.songs.length} songs`,
+                songs: data.musicControl.songs,
+                count: data.musicControl.songs.length,
+                mood: data.musicControl.mood || 'mixed',
+                language: data.musicControl.language || 'Mixed'
+            };
+            playlistUI.displayPlaylistFromSongs(playlist);
+        }
+        processMusicControl(data.musicControl);
+    }
+
+    if (data.offlineFallback) {
+        showOfflineBanner(data.fallbackReason || 'error');
+    } else {
+        removeOfflineBanner();
+    }
+});
+
+socket.on('bot:error', function(data) {
+    const message = data?.message || '⚠️ An error occurred while processing your message.';
+    if (data && data.id) {
+        finalizeStreamingMessage(data.id, message);
+    } else {
+        addMessage(message, 'bot');
+    }
+});
+
 socket.on('connect', function() {
     console.log('Connected to server');
+    removeOfflineBanner();
 });
 
 socket.on('disconnect', function() {
     console.log('Disconnected from server');
+    showOfflineBanner('error');
+});
+
+socket.on('connect_error', function() {
+    showOfflineBanner('error');
 });
 
 // Receive a globally broadcast shuffled playlist (Spotify recommendations)
@@ -1578,11 +1710,11 @@ function getWorkingYouTubeVideoId(songInfo) {
         'Romantic Tamil Songs': 'dzQ99-AqjJI',
         
         // Mood-based fallbacks (all verified embeddable)
-        'happy_1': 'YR12Z8f1Dh8', // Why This Kolaveri Di
-        'happy_2': 'vkqiC4KPeDs', // Arabic Kuthu
-        'happy_3': 'HiqmZLOuCMY', // Aaluma Doluma
-        'happy_4': 'bhZGhtKAKTU', // Vaathi Coming
-        'happy_5': 'kK4xXZQ89Hc', // Naakka Mukka
+        'happy_1': 'vkqiC4KPeDs', // Arabic Kuthu
+        'happy_2': 'HiqmZLOuCMY', // Aaluma Doluma
+        'happy_3': 'bhZGhtKAKTU', // Vaathi Coming
+        'happy_4': 'kK4xXZQ89Hc', // Naakka Mukka
+        'happy_5': 'x6Q7c9RyMzk', // Rowdy Baby
         
         'sad_1': 'CiFX5rJnhLk', // Hosanna
         'sad_2': 'gQNDm3S7FLc', // Vennilave Vennilave
@@ -2519,9 +2651,26 @@ async function processMusicControl(control) {
                     console.error('Error fetching song:', error);
                 }
             } else if (mode === 'playlist' && songs && songs.length > 0) {
-                // Play playlist
-                musicPlayer.playPlaylist(songs);
-                addMessage(`🎵 Playing ${songs.length} songs${mood ? ` (${mood} mood)` : ''}`, 'system');
+                // Ensure YouTube data is present before playback
+                let resolvedSongs = songs;
+                if (songs.some(s => !s.youtubeId)) {
+                    try {
+                        const resp = await fetch('/api/youtube/resolve', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ songs })
+                        });
+                        const data = await resp.json();
+                        if (data.success && data.songs) {
+                            resolvedSongs = data.songs;
+                        }
+                    } catch (error) {
+                        console.error('YouTube resolve failed:', error);
+                    }
+                }
+
+                musicPlayer.playPlaylist(resolvedSongs);
+                addMessage(`🎵 Playing ${resolvedSongs.length} songs${mood ? ` (${mood} mood)` : ''}`, 'system');
             } else if (mode === 'playlist' && (mood || language)) {
                 // Fetch and play songs by mood/language
                 try {

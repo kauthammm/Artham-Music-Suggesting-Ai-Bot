@@ -20,12 +20,7 @@ Your music chatbot now supports powerful playlist features! Here are all the com
 - `"artist playlist A.R. Rahman"` - A.R. Rahman collection
 - `"playlist by artist Harris Jayaraj"` - Harris Jayaraj tracks
 
-### Smart Playlist (Time-Based)
-- `"create smart playlist"` - Automatically selects mood based on time:
-  - **Morning (6AM-12PM)**: Energetic songs
-  - **Afternoon (12PM-5PM)**: Upbeat songs  
-  - **Evening (5PM-9PM)**: Romantic songs
-  - **Night (9PM-6AM)**: Calm songs
+
 
 ## 🎮 Playlist Controls
 

@@ -31,6 +31,11 @@ Artham is an intelligent mood-based music chatbot that understands user emotions
 - Real-time chat using **Socket.IO**
 - Context-aware and friendly responses
 
+### 🤖 AI Providers & Fallback
+- OpenAI primary with Gemini fallback
+- Local offline mode when APIs are unavailable
+- Streaming replies with typing indicator
+
 ---
 
 ## 🚀 Getting Started

@@ -7,13 +7,14 @@ class PlaylistUI {
   constructor(containerSelector) {
     this.container = document.querySelector(containerSelector);
     this.currentPlaylist = null;
+    this.currentPlayingId = null;
   }
 
   /**
    * Display a Spotify-style playlist
    * @param {Object} playlist - Playlist object from API
    */
-  async displayPlaylist(mood, language) {
+  async displayPlaylist(mood, language, resolveYouTube = false) {
     if (!this.container) {
       console.error('Playlist container not found');
       return;
@@ -21,7 +22,7 @@ class PlaylistUI {
 
     try {
       // Fetch playlist from API
-      const response = await fetch(`/api/playlist/${mood}/${language}`);
+      const response = await fetch(`/api/playlist/${mood}/${language}?resolve=${resolveYouTube ? '1' : '0'}&preferYouTube=${resolveYouTube ? '1' : '0'}`);
       const playlist = await response.json();
 
       this.currentPlaylist = playlist;
@@ -108,10 +109,13 @@ class PlaylistUI {
       
     const provider = song.provider === 'spotify' ? 'Spotify' : 
                      song.provider === 'youtube' ? 'YouTube' : 
-                     song.provider;
+                     song.provider || 'Unknown';
+
+    const playingClass = this.currentPlayingId === song.id ? ' playing' : '';
+    const thumbnail = song.thumbnail || (song.youtubeId ? `https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg` : '');
 
     return `
-      <div class="song-row" data-song-id="${song.id}">
+      <div class="song-row${playingClass}" data-song-id="${song.id}">
         <div class="col-number">
           <span class="song-number">${song.position}</span>
           <button class="play-btn-mini" data-action="play-song" data-song-id="${song.id}">
@@ -119,12 +123,15 @@ class PlaylistUI {
           </button>
         </div>
         <div class="col-title">
-          <div class="song-title-text">${song.title}</div>
+          <div class="song-title-text">
+            ${thumbnail ? `<img class="song-thumb" src="${thumbnail}" alt="${song.title}">` : ''}
+            <span>${song.title}</span>
+          </div>
           <div class="song-movie">${song.movie || ''}</div>
         </div>
-        <div class="col-artist">${song.artist}</div>
+        <div class="col-artist">${song.artist || ''}</div>
         <div class="col-duration">
-          ${duration}
+          <span>${duration}</span>
           <span class="provider-badge">${provider}</span>
         </div>
         <div class="col-actions">
@@ -134,12 +141,29 @@ class PlaylistUI {
           <button class="action-btn" data-action="add-queue" data-song-id="${song.id}" title="Add to Queue">
             <i class="fas fa-plus"></i>
           </button>
+          ${song.spotifyId ? `
+            <button class="action-btn" data-action="spotify-preview" data-spotify-id="${song.spotifyId}" title="Spotify Preview">
+              <i class="fab fa-spotify"></i>
+            </button>
+          ` : ''}
           <button class="action-btn" data-action="share" data-song-id="${song.id}" title="Share">
             <i class="fas fa-share-alt"></i>
           </button>
         </div>
       </div>
     `;
+  }
+
+  /**
+   * Highlight the currently playing song
+   */
+  setPlayingSong(songId) {
+    this.currentPlayingId = songId;
+    if (!this.container) return;
+    const rows = this.container.querySelectorAll('.song-row');
+    rows.forEach(row => {
+      row.classList.toggle('playing', row.dataset.songId === songId);
+    });
   }
 
   /**
@@ -207,6 +231,14 @@ class PlaylistUI {
       });
     });
 
+    const spotifyBtns = this.container.querySelectorAll('[data-action="spotify-preview"]');
+    spotifyBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const spotifyId = e.currentTarget.dataset.spotifyId;
+        this.showSpotifyPreview(spotifyId);
+      });
+    });
+
     // Alternative playlist buttons
     const altBtns = this.container.querySelectorAll('.alternative-btn');
     altBtns.forEach(btn => {
@@ -229,6 +261,29 @@ class PlaylistUI {
         row.querySelector('.play-btn-mini').style.display = 'none';
       });
     });
+  }
+
+  showSpotifyPreview(spotifyId) {
+    if (!spotifyId) return;
+    let preview = this.container.querySelector('.spotify-preview');
+    if (!preview) {
+      preview = document.createElement('div');
+      preview.className = 'spotify-preview';
+      this.container.prepend(preview);
+    }
+    preview.innerHTML = `
+      <div class="spotify-preview-inner">
+        <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/${spotifyId}?utm_source=generator&theme=0" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      </div>
+    `;
+  }
+
+  displayPlaylistFromSongs(playlist) {
+    if (!playlist || !playlist.songs || !this.container) return;
+    this.currentPlaylist = playlist;
+    this.container.innerHTML = this.renderPlaylistHTML(playlist);
+    this.attachEventListeners();
+    this.container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
   /**

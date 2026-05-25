@@ -24,7 +24,7 @@ const SONGS = [
     singer: 'Dhanush',
     movie: '3',
     language: 'Tamil',
-    moods: ['happy', 'energetic', 'fun'],
+    moods: ['sad', 'emotional', 'heartbreak'],
     provider: 'spotify',
     spotifyId: '3JvKfv6T31zO0ini8iNItO',
     youtubeId: 'YR12Z8f1Dh8',

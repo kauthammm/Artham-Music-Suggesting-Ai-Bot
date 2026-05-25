@@ -41,6 +41,9 @@ OPENAI_API_KEY=sk-your-actual-key-here
 
 # OPTIONAL - For YouTube search
 YOUTUBE_API_KEY=your-youtube-key-here
+
+# OPTIONAL - Gemini fallback
+GEMINI_API_KEY=your-gemini-api-key-here
 ```
 
 **Important**: Without `OPENAI_API_KEY`, the chatbot will fall back to rule-based responses.

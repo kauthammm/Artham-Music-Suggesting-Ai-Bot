@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const path = require('path');
+const crypto = require('crypto');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const { Server } = require('socket.io');
@@ -10,9 +11,11 @@ const youtubeSearch = require('youtube-search-api');
 const axios = require('axios');
 const spotifyAuth = require('./spotify-auth');
 const { simpleRespond } = require('./src/simpleResponder');
+const { analyzeMessage, buildPlaylist } = require('./src/recommendationEngine');
+const youtubeService = require('./src/youtubeService');
 
 // Import OpenAI chat handler and song catalog
-const { processChat, getWelcomeMessage } = require('./src/openaiHandler');
+const { processChat, processChatStream, getWelcomeMessage } = require('./src/openaiHandler');
 const { SONGS, getSongsByMood, getSongsByLanguage, getSongsByMoodAndLanguage, getSongById, searchSongs } = require('./src/songCatalog');
 const { getPlaylistForMoodAndLanguage, getAllAvailablePlaylists, getCatalogStats } = require('./src/playlistService');
 
@@ -150,6 +153,34 @@ app.post('/api/simple-chat', async (req, res) => {
   } catch (err) {
     console.error('[simple-chat-error]', err.message);
     res.status(500).json({ success: false, error: 'Failed to process simple chat' });
+  }
+});
+
+// Unified chat endpoint (HTTP)
+app.post('/chat', async (req, res) => {
+  const { text, mood, language, history } = req.body || {};
+  if (!text || typeof text !== 'string') {
+    return res.status(400).json({ success: false, error: 'Missing text' });
+  }
+
+  const messages = Array.isArray(history) && history.length > 0
+    ? history.concat([{ role: 'user', content: text }])
+    : [{ role: 'user', content: text }];
+
+  try {
+    const response = await processChat(messages, { mood, language });
+    res.json({
+      success: true,
+      text: response.text,
+      musicControl: response.musicControl,
+      model: response.model,
+      provider: response.provider,
+      offlineFallback: response.offlineFallback,
+      fallbackReason: response.fallbackReason
+    });
+  } catch (err) {
+    console.error('[chat-endpoint-error]', err.message);
+    res.status(500).json({ success: false, error: 'Failed to process chat' });
   }
 });
 
@@ -340,12 +371,72 @@ app.get('/api/songs/search/:query', (req, res) => {
   res.json({ success: true, query: req.params.query, songs });
 });
 
+// Alias routes for cleaner API paths
+app.get('/songs', (req, res) => {
+  res.json({ success: true, songs: SONGS });
+});
+
+app.get('/playlist', (req, res) => {
+  const mood = req.query.mood;
+  const language = req.query.language;
+  if (!mood || !language) {
+    return res.status(400).json({ success: false, error: 'Missing mood or language' });
+  }
+  const playlist = getPlaylistForMoodAndLanguage(mood, language);
+  res.json(playlist);
+});
+
 // ===== PLAYLIST API ROUTES (Spotify-style) =====
 
 // Get playlist for specific mood + language combination
 app.get('/api/playlist/:mood/:language', (req, res) => {
   const playlist = getPlaylistForMoodAndLanguage(req.params.mood, req.params.language);
-  res.json(playlist);
+  const shouldResolve = req.query.resolve === '1' || req.query.resolve === 'true';
+  const preferYouTube = req.query.preferYouTube === '1' || req.query.preferYouTube === 'true';
+
+  if (!shouldResolve || !playlist?.songs?.length) {
+    return res.json(playlist);
+  }
+
+  youtubeService.resolveSongs(playlist.songs)
+    .then((songs) => {
+      if (!preferYouTube) return res.json({ ...playlist, songs });
+      const adjusted = songs.map((song) => {
+        if (!song.youtubeId) return song;
+        const embedUrl = `https://www.youtube.com/embed/${song.youtubeId}?autoplay=1`;
+        return {
+          ...song,
+          provider: 'youtube',
+          streamUrl: song.streamUrl || embedUrl
+        };
+      });
+      res.json({ ...playlist, songs: adjusted });
+    })
+    .catch((err) => {
+      console.error('[playlist-resolve-error]', err.message);
+      res.json(playlist);
+    });
+});
+
+// Curated playlist from user message context
+app.post('/api/playlist/curate', async (req, res) => {
+  const { text, mood, language, limit, resolveYouTube } = req.body || {};
+  const analysis = analyzeMessage(text || '', { mood, language });
+  const playlist = buildPlaylist(analysis, limit || 15);
+
+  if (resolveYouTube && playlist.songs?.length) {
+    try {
+      playlist.songs = await youtubeService.resolveSongs(playlist.songs);
+    } catch (err) {
+      console.error('[playlist-curate-youtube]', err.message);
+    }
+  }
+
+  res.json({
+    success: true,
+    analysis,
+    playlist
+  });
 });
 
 // Get all available playlists
@@ -358,6 +449,22 @@ app.get('/api/playlists', (req, res) => {
 app.get('/api/stats', (req, res) => {
   const stats = getCatalogStats();
   res.json({ success: true, stats });
+});
+
+// Resolve YouTube data for a set of songs
+app.post('/api/youtube/resolve', async (req, res) => {
+  const songs = req.body?.songs;
+  if (!Array.isArray(songs) || songs.length === 0) {
+    return res.status(400).json({ success: false, error: 'Missing songs list' });
+  }
+
+  try {
+    const resolved = await youtubeService.resolveSongs(songs);
+    res.json({ success: true, songs: resolved });
+  } catch (err) {
+    console.error('[youtube-resolve-error]', err.message);
+    res.status(500).json({ success: false, error: 'Failed to resolve YouTube data' });
+  }
 });
 
 // Admin panel route
@@ -457,34 +564,23 @@ app.post('/search-youtube', async (req, res) => {
     console.log('🎵 YouTube search request:', { songTitle, artist, movie });
     console.log('🔑 Using deployed YouTube API');
     
-    // First, try your deployed YouTube API for real-time search
+    // First, try YouTube Data API v3 via shared resolver
     try {
-        const apiSearchQuery = `${songTitle} ${artist || ''} ${movie || ''} tamil song official video`.trim();
-        console.log('🔍 Searching deployed API for:', apiSearchQuery);
-        
-        const apiResults = await searchYouTubeWithAPI(apiSearchQuery, 5);
-        
-        if (apiResults && apiResults.length > 0) {
-            console.log(`✅ Found ${apiResults.length} results from deployed API`);
-            
-            // Return the best match from API
-            const bestMatch = findBestVideoMatch(apiResults, songTitle, artist);
-            if (bestMatch) {
-                console.log('🎬 Best API match:', bestMatch.title);
-                res.json({
-                    success: true,
-                    videoId: bestMatch.videoId,
-                    title: bestMatch.title,
-                    channelTitle: bestMatch.channelTitle,
-                    thumbnail: bestMatch.thumbnail,
-                    embedUrl: bestMatch.embedUrl,
-                    searchQuery: apiSearchQuery,
-                    source: 'deployed_api',
-                    allResults: apiResults
-                });
-                return;
-            }
-        }
+      const query = `${songTitle} ${artist || ''} official audio`.trim();
+      const result = await youtubeService.searchVideo(query);
+      if (result) {
+        res.json({
+          success: true,
+          videoId: result.videoId,
+          title: result.title,
+          channelTitle: result.channel,
+          thumbnail: result.thumbnail,
+          embedUrl: `https://www.youtube.com/embed/${result.videoId}?autoplay=1&rel=0&showinfo=0`,
+          searchQuery: query,
+          source: 'youtube_api'
+        });
+        return;
+      }
     } catch (error) {
         console.error('❌ Deployed API search failed:', error.message);
     }
@@ -765,79 +861,6 @@ function findBestVideoMatch(results, songTitle, artist) {
     return scoredResults[0];
 }
 
-// New endpoint to get multiple video options for a song
-app.post('/get-video-options', async (req, res) => {
-    const { songTitle, artist, movie } = req.body;
-    
-    console.log('🎬 Getting video options for:', songTitle, 'by', artist);
-    
-    const searchQuery = `${songTitle} ${artist} ${movie || ''} tamil song`;
-    const results = await searchYouTubeWithAPI(searchQuery, 8);
-    
-    if (results && results.length > 0) {
-        // Filter and score results
-        const videoOptions = results.map((result, index) => {
-            const score = calculateVideoScore(result, songTitle, artist);
-            return {
-                videoId: result.videoId,
-                title: result.title,
-                channelTitle: result.channelTitle,
-                thumbnail: result.thumbnail,
-                score: score,
-                rank: index + 1
-            };
-        }).sort((a, b) => b.score - a.score);
-        
-        res.json({
-            success: true,
-            songTitle,
-            artist,
-            options: videoOptions,
-            totalFound: results.length
-        });
-    } else {
-        res.json({
-            success: false,
-            message: 'No video options found',
-            songTitle,
-            artist
-        });
-    }
-});
-
-// Helper function to calculate video relevance score
-function calculateVideoScore(video, songTitle, artist) {
-    let score = 0;
-    const title = video.title.toLowerCase();
-    const channel = video.channelTitle.toLowerCase();
-    const songLower = songTitle.toLowerCase();
-    const artistLower = artist.toLowerCase();
-    
-    // Title matching
-    if (title.includes(songLower)) score += 15;
-    if (title === songLower) score += 25; // Exact match bonus
-    
-    // Artist matching
-    if (title.includes(artistLower)) score += 12;
-    if (channel.includes(artistLower)) score += 10;
-    
-    // Quality indicators
-    if (title.includes('official')) score += 8;
-    if (title.includes('hd') || title.includes('4k')) score += 5;
-    if (title.includes('video')) score += 4;
-    if (title.includes('full song')) score += 6;
-    
-    // Channel quality
-    if (channel.includes('music') || channel.includes('records')) score += 6;
-    if (channel.includes('entertainment') || channel.includes('studios')) score += 4;
-    
-    // Penalties
-    if (title.includes('cover') || title.includes('remix')) score -= 8;
-    if (title.includes('karaoke') || title.includes('instrumental')) score -= 10;
-    if (title.includes('reaction') || title.includes('review')) score -= 15;
-    
-    return Math.max(0, score); // Ensure non-negative score
-}
 
 // Audio streaming endpoint for songs
 app.get('/stream-audio/:songId', (req, res) => {
@@ -1617,7 +1640,7 @@ function generateCuratedPlaylist(mood, language) {
       title: `🎵 Happy Tamil Hits`,
       description: 'Upbeat Tamil songs to brighten your day',
       songs: [
-        { title: 'Why This Kolaveri Di', artist: 'Anirudh Ravichander', movie: '3', search: 'Why This Kolaveri Di 3 Anirudh' },
+        { title: 'Arabic Kuthu', artist: 'Anirudh Ravichander', movie: 'Beast', search: 'Arabic Kuthu Beast Anirudh' },
         { title: 'Aaluma Doluma', artist: 'Anirudh Ravichander', movie: 'Vedalam', search: 'Aaluma Doluma Vedalam Anirudh' },
         { title: 'Vaathi Coming', artist: 'Anirudh Ravichander', movie: 'Master', search: 'Vaathi Coming Master Anirudh' },
         { title: 'Mukkala Mukkabala', artist: 'A.R. Rahman', movie: 'Kaadhalan', search: 'Mukkala Mukkabala Kaadhalan AR Rahman' },
@@ -1927,40 +1950,119 @@ io.on('connection', async (socket) => {
     // Add user message to history
     history.push({ role: 'user', content: text });
     
+    const useStream = msg.stream !== false;
+    if (!useStream) {
+      try {
+        const response = await processChat(history, {
+          currentSong: msg.currentSong,
+          mood: msg.mood,
+          language: msg.language
+        });
+
+        let musicControl = response.musicControl;
+        if (!musicControl || !musicControl.songs || musicControl.songs.length === 0) {
+          const analysis = analyzeMessage(text, { mood: msg.mood, language: msg.language });
+          const curated = buildPlaylist(analysis, 15);
+          if (curated?.songs?.length) {
+            try {
+              curated.songs = await youtubeService.resolveSongs(curated.songs);
+            } catch (err) {
+              console.error('[socket-playlist-resolve]', err.message);
+            }
+            musicControl = {
+              action: 'play',
+              mode: 'playlist',
+              mood: analysis.mood || curated.mood,
+              language: analysis.language ? capitalize(analysis.language) : curated.language,
+              songs: curated.songs
+            };
+          }
+        }
+
+        history.push({ role: 'assistant', content: response.fullResponse || response.text });
+        if (history.length > 20) {
+          history.splice(0, history.length - 20);
+        }
+        conversationHistory.set(socket.id, history);
+
+        socket.emit('bot', {
+          text: response.text,
+          musicControl: musicControl,
+          type: 'ai_response',
+          offlineFallback: response.offlineFallback,
+          fallbackReason: response.fallbackReason
+        });
+      } catch (error) {
+        console.error('Error processing chat:', error);
+        socket.emit('bot', {
+          text: error.message || '⚠️ An error occurred while processing your message. Please try again.',
+          type: 'error',
+          isError: true
+        });
+      }
+      return;
+    }
+
+    const responseId = crypto.randomUUID();
+    socket.emit('bot:typing', { id: responseId, active: true });
+
+    let streamedText = '';
+
     try {
-      // Process with OpenAI (Artham AI)
-      const response = await processChat(history, {
+      const response = await processChatStream(history, {
         currentSong: msg.currentSong,
         mood: msg.mood,
         language: msg.language
+      }, (delta) => {
+        streamedText += delta;
+        socket.emit('bot:partial', { id: responseId, text: delta });
       });
-      
-      // Add assistant response to history
-      history.push({ role: 'assistant', content: response.fullResponse || response.text });
-      
-      // Keep history manageable (last 20 messages)
+
+      let musicControl = response.musicControl;
+      if (!musicControl || !musicControl.songs || musicControl.songs.length === 0) {
+        const analysis = analyzeMessage(text, { mood: msg.mood, language: msg.language });
+        const curated = buildPlaylist(analysis, 15);
+        if (curated?.songs?.length) {
+          try {
+            curated.songs = await youtubeService.resolveSongs(curated.songs);
+          } catch (err) {
+            console.error('[socket-playlist-resolve]', err.message);
+          }
+          musicControl = {
+            action: 'play',
+            mode: 'playlist',
+            mood: analysis.mood || curated.mood,
+            language: analysis.language ? capitalize(analysis.language) : curated.language,
+            songs: curated.songs
+          };
+        }
+      }
+
+      history.push({ role: 'assistant', content: response.fullResponse || response.text || streamedText });
+
       if (history.length > 20) {
         history.splice(0, history.length - 20);
       }
-      
       conversationHistory.set(socket.id, history);
-      
-      // Send response to client
-      socket.emit('bot', {
-        text: response.text,
-        musicControl: response.musicControl,
+
+      socket.emit('bot:done', {
+        id: responseId,
+        text: response.text || streamedText,
+        musicControl: musicControl,
+        model: response.model,
+        provider: response.provider,
+        offlineFallback: response.offlineFallback,
+        fallbackReason: response.fallbackReason,
         type: 'ai_response'
       });
-      
     } catch (error) {
       console.error('Error processing chat:', error);
-      
-      // Send error message to user
-      socket.emit('bot', {
-        text: error.message || '⚠️ An error occurred while processing your message. Please try again.',
-        type: 'error',
-        isError: true
+      socket.emit('bot:error', {
+        id: responseId,
+        message: error.message || '⚠️ An error occurred while processing your message. Please try again.'
       });
+    } finally {
+      socket.emit('bot:typing', { id: responseId, active: false });
     }
   });
 
@@ -2001,6 +2103,12 @@ io.on('connection', async (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+function capitalize(value) {
+  if (!value) return value;
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 server.listen(PORT, () => {
   try {
     const addr = server.address();

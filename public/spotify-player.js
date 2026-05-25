@@ -5,6 +5,12 @@ class SpotifyPlayer {
     this.currentIndex = 0;
     this.isPlaying = false;
     this.volume = 70;
+    this.shuffle = false;
+    this.repeat = false;
+    this.queueVisible = false;
+    this.onSongChange = null;
+    this.onPlayStateChange = null;
+    this.onPlaylistChange = null;
     this.ytPlayer = null;
     this.ytReady = false;
     this.pendingSong = false;
@@ -26,9 +32,11 @@ class SpotifyPlayer {
         
         <div class="sb-center">
           <div class="sb-buttons">
+            <button id="sb-shuffle" class="sb-btn" title="Shuffle"><i class="fas fa-random"></i></button>
             <button id="sb-prev" class="sb-btn"><i class="fas fa-step-backward"></i></button>
             <button id="sb-play" class="sb-btn sb-play-btn"><i class="fas fa-play"></i></button>
             <button id="sb-next" class="sb-btn"><i class="fas fa-step-forward"></i></button>
+            <button id="sb-repeat" class="sb-btn" title="Repeat"><i class="fas fa-repeat"></i></button>
           </div>
           <div class="sb-progress">
             <span id="sb-time">0:00</span>
@@ -44,6 +52,7 @@ class SpotifyPlayer {
         </div>
         
         <div id="sb-yt" style="display:none;"></div>
+        <div id="sb-queue-panel" class="sb-queue-panel hidden"></div>
       </div>
       
       <style>
@@ -145,6 +154,10 @@ class SpotifyPlayer {
           color: white;
           transform: scale(1.1);
         }
+
+        .sb-btn.active {
+          color: #1db954;
+        }
         
         .sb-play-btn {
           width: 36px;
@@ -204,6 +217,57 @@ class SpotifyPlayer {
           gap: 12px;
           width: 25%;
           justify-content: flex-end;
+        }
+
+        .sb-queue-panel {
+          position: fixed;
+          right: 16px;
+          bottom: 100px;
+          width: 320px;
+          max-height: 50vh;
+          overflow-y: auto;
+          background: #111;
+          border: 1px solid #282828;
+          border-radius: 8px;
+          padding: 12px;
+          box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+          display: none;
+          z-index: 10000;
+        }
+
+        .sb-queue-panel.visible {
+          display: block;
+        }
+
+        .sb-queue-title {
+          font-size: 13px;
+          color: #b3b3b3;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        .sb-queue-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+          padding: 6px 4px;
+          border-bottom: 1px solid #202020;
+          font-size: 12px;
+        }
+
+        .sb-queue-item:last-child {
+          border-bottom: none;
+        }
+
+        .sb-queue-item strong {
+          color: #fff;
+          font-weight: 500;
+        }
+
+        .sb-queue-item span {
+          color: #b3b3b3;
         }
         
         .sb-volume {
@@ -269,6 +333,9 @@ class SpotifyPlayer {
     document.getElementById('sb-play')?.addEventListener('click', () => this.togglePlay());
     document.getElementById('sb-next')?.addEventListener('click', () => this.next());
     document.getElementById('sb-prev')?.addEventListener('click', () => this.previous());
+    document.getElementById('sb-shuffle')?.addEventListener('click', () => this.toggleShuffle());
+    document.getElementById('sb-repeat')?.addEventListener('click', () => this.toggleRepeat());
+    document.getElementById('sb-queue')?.addEventListener('click', () => this.toggleQueue());
     document.getElementById('sb-volume')?.addEventListener('input', (e) => {
       this.volume = parseInt(e.target.value);
       if (this.ytPlayer && this.ytPlayer.setVolume) this.ytPlayer.setVolume(this.volume);
@@ -321,11 +388,13 @@ class SpotifyPlayer {
       this.isPlaying = true;
       this.updatePlayBtn();
       this.updateProgress();
+      if (this.onPlayStateChange) this.onPlayStateChange(true);
     } else if (e.data === YT.PlayerState.ENDED) {
       this.next();
     } else {
       this.isPlaying = false;
       this.updatePlayBtn();
+      if (this.onPlayStateChange) this.onPlayStateChange(false);
     }
   }
 
@@ -335,9 +404,22 @@ class SpotifyPlayer {
       return;
     }
     console.log('🎵 Playing playlist with', songs.length, 'songs');
-    this.playlist = songs;
+    this.playlist = [...songs];
     this.currentIndex = index;
+
+    if (this.shuffle) {
+      this.shufflePlaylist();
+    }
+
+    if (this.onPlaylistChange) {
+      this.onPlaylistChange(this.playlist);
+    }
     this.playCurrent();
+  }
+
+  play(song) {
+    if (!song) return;
+    this.playPlaylist([song], 0);
   }
 
   playCurrent() {
@@ -364,6 +446,8 @@ class SpotifyPlayer {
     const art = document.getElementById('sb-art');
     if (song.youtubeId) {
       art.innerHTML = `<img src="https://img.youtube.com/vi/${song.youtubeId}/mqdefault.jpg" alt="${song.title}">`;
+    } else if (song.thumbnail) {
+      art.innerHTML = `<img src="${song.thumbnail}" alt="${song.title}">`;
     } else {
       art.innerHTML = '<i class="fas fa-music"></i>';
     }
@@ -374,6 +458,84 @@ class SpotifyPlayer {
     } else {
       console.log('❌ No youtubeId for song or player not ready');
     }
+
+    this.updateQueuePanel();
+    if (this.onSongChange) this.onSongChange(song);
+  }
+
+  pause() {
+    if (this.ytPlayer && this.ytPlayer.pauseVideo) {
+      this.ytPlayer.pauseVideo();
+    }
+  }
+
+  resume() {
+    if (this.ytPlayer && this.ytPlayer.playVideo) {
+      this.ytPlayer.playVideo();
+    }
+  }
+
+  toggleShuffle() {
+    this.shuffle = !this.shuffle;
+    const btn = document.getElementById('sb-shuffle');
+    if (btn) btn.classList.toggle('active', this.shuffle);
+    if (this.shuffle) {
+      this.shufflePlaylist();
+      this.updateQueuePanel();
+    }
+  }
+
+  shuffle() {
+    if (!this.shuffle) {
+      this.shuffle = true;
+      const btn = document.getElementById('sb-shuffle');
+      if (btn) btn.classList.add('active');
+    }
+    this.shufflePlaylist();
+    this.updateQueuePanel();
+  }
+
+  toggleRepeat() {
+    this.repeat = !this.repeat;
+    const btn = document.getElementById('sb-repeat');
+    if (btn) btn.classList.toggle('active', this.repeat);
+  }
+
+  shufflePlaylist() {
+    if (this.playlist.length <= 1) return;
+    const current = this.playlist[this.currentIndex];
+    for (let i = this.playlist.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [this.playlist[i], this.playlist[j]] = [this.playlist[j], this.playlist[i]];
+    }
+    this.currentIndex = this.playlist.findIndex((song) => song.id === current.id);
+    if (this.currentIndex < 0) this.currentIndex = 0;
+  }
+
+  toggleQueue() {
+    this.queueVisible = !this.queueVisible;
+    const panel = document.getElementById('sb-queue-panel');
+    if (!panel) return;
+    panel.classList.toggle('visible', this.queueVisible);
+    if (this.queueVisible) {
+      this.updateQueuePanel();
+    }
+  }
+
+  updateQueuePanel() {
+    const panel = document.getElementById('sb-queue-panel');
+    if (!panel || !this.queueVisible) return;
+
+    const upcoming = this.playlist.slice(this.currentIndex + 1, this.currentIndex + 11);
+    const items = upcoming.map((song, idx) => {
+      const number = this.currentIndex + idx + 2;
+      return `<div class="sb-queue-item"><strong>${number}. ${song.title}</strong><span>${song.artist || ''}</span></div>`;
+    }).join('');
+
+    panel.innerHTML = `
+      <div class="sb-queue-title">Up Next</div>
+      ${items || '<div class="sb-queue-item"><span>No upcoming tracks</span></div>'}
+    `;
   }
 
   togglePlay() {
@@ -383,7 +545,17 @@ class SpotifyPlayer {
 
   next() {
     if (this.playlist.length === 0) return;
-    this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
+    if (this.currentIndex >= this.playlist.length - 1) {
+      if (this.repeat) {
+        this.currentIndex = 0;
+      } else {
+        this.isPlaying = false;
+        this.updatePlayBtn();
+        return;
+      }
+    } else {
+      this.currentIndex += 1;
+    }
     this.playCurrent();
   }
 
@@ -428,18 +600,7 @@ class SpotifyPlayer {
 // Initialize when page loads
 document.addEventListener('DOMContentLoaded', () => {
   window.spotifyPlayer = new SpotifyPlayer();
-  window.musicPlayer = {
-    playPlaylist: (songs, index) => {
-      if (window.spotifyPlayer) {
-        window.spotifyPlayer.playPlaylist(songs, index || 0);
-      }
-    },
-    play: (song) => {
-      if (window.spotifyPlayer) {
-        window.spotifyPlayer.playPlaylist([song], 0);
-      }
-    }
-  };
+  window.musicPlayer = window.spotifyPlayer;
   console.log('🎵 Spotify-Style Player (YouTube) Ready!');
 });
 
