@@ -1,4 +1,11 @@
-require('dotenv').config();
+const { config, validateEnv } = require('./src/config');
+const { createLogger } = require('./src/logger');
+const logger = createLogger({ service: 'artham-server', level: config.logLevel });
+
+const { warnings: envWarnings, providers: envProviders } = validateEnv();
+envWarnings.forEach((w) => logger.warn('env-warning', { warning: w }));
+logger.info('startup', { nodeEnv: config.nodeEnv, port: config.port, providers: envProviders });
+
 const express = require('express');
 const http = require('http');
 const path = require('path');
@@ -22,6 +29,39 @@ const { getPlaylistForMoodAndLanguage, getAllAvailablePlaylists, getCatalogStats
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server);
+
+// Process-level diagnostics (keeps failures visible in logs)
+process.on('unhandledRejection', (err) => {
+  logger.error('unhandledRejection', { error: err?.message || String(err), stack: err?.stack });
+});
+
+let shuttingDown = false;
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  logger.warn('shutdown', { signal });
+
+  try {
+    io.close();
+  } catch (_) {
+    // ignore
+  }
+
+  server.close(() => {
+    logger.info('shutdown-complete');
+    process.exit(0);
+  });
+
+  // Force exit if something is stuck (e.g. keep-alive sockets)
+  setTimeout(() => process.exit(1), 5000).unref();
+}
+
+process.on('SIGINT', () => shutdown('SIGINT'));
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('uncaughtException', (err) => {
+  logger.error('uncaughtException', { error: err?.message || String(err), stack: err?.stack });
+  shutdown('uncaughtException');
+});
 
 // Add diagnostic handlers
 server.on('error', (err) => {
@@ -138,7 +178,12 @@ app.use(express.static('public'));
 
 // Basic health endpoint for liveness checks
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', time: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    time: new Date().toISOString(),
+    nodeEnv: config.nodeEnv,
+    providers: envProviders
+  });
 });
 
 // Lightweight simple chat endpoint (Artham-Lite)
@@ -186,6 +231,9 @@ app.post('/chat', async (req, res) => {
 
 // Debug endpoint to verify Groq connectivity
 app.get('/api/debug-groq', async (req, res) => {
+  if (!config.enableDebugEndpoints) {
+    return res.status(404).json({ success: false, error: 'Not found' });
+  }
   const testPrompt = 'Return only the word READY if you received this.';
   try {
     const { GROQ_API_KEY } = process.env;
@@ -214,7 +262,7 @@ app.get('/api/debug-groq', async (req, res) => {
 
 // Heartbeat log every 30s (helps detect silent exits)
 setInterval(() => {
-  if (process.env.HEARTBEAT_LOG === 'false') return;
+  if (!config.heartbeatLog) return;
   console.log('[heartbeat] server alive', new Date().toISOString());
 }, 30000);
 
@@ -496,6 +544,9 @@ app.get('/diagnostics', (req, res) => {
 
 // Full diagnostics with all playlists
 app.get('/diagnostics/full', (req, res) => {
+  if (!config.enableDebugEndpoints) {
+    return res.status(404).json({ success: false, error: 'Not found' });
+  }
   try {
     const stats = getCatalogStats();
     const playlists = getAllAvailablePlaylists();
@@ -2102,7 +2153,7 @@ io.on('connection', async (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
 
 function capitalize(value) {
   if (!value) return value;

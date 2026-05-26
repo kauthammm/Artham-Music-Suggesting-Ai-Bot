@@ -1,11 +1,13 @@
 const axios = require('axios');
 
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY || '';
-const OPENAI_MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+const { config, isPlaceholder } = require('../../config');
+
+const OPENAI_API_KEY = config.openai.apiKey;
+const OPENAI_MODEL = config.openai.model;
 
 function isConfigured() {
   if (!OPENAI_API_KEY) return false;
-  if (OPENAI_API_KEY.toLowerCase().includes('your-')) return false;
+  if (isPlaceholder(OPENAI_API_KEY)) return false;
   return OPENAI_API_KEY.startsWith('sk-');
 }
 

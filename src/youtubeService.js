@@ -7,6 +7,18 @@ const YOUTUBE_API_BASE_URL = process.env.YOUTUBE_API_BASE_URL || 'https://www.go
 const queryCache = new Map();
 const videoCache = new Map();
 
+// Prevent unbounded growth for long-running servers.
+const MAX_QUERY_CACHE = parseInt(process.env.YOUTUBE_QUERY_CACHE_MAX || '500', 10);
+const MAX_VIDEO_CACHE = parseInt(process.env.YOUTUBE_VIDEO_CACHE_MAX || '500', 10);
+
+function pruneCache(cache, maxSize) {
+  if (!Number.isFinite(maxSize) || maxSize <= 0) return;
+  while (cache.size > maxSize) {
+    const oldestKey = cache.keys().next().value;
+    cache.delete(oldestKey);
+  }
+}
+
 function hasApiKey() {
   return !!YOUTUBE_API_KEY && !YOUTUBE_API_KEY.toLowerCase().includes('your-');
 }
@@ -50,6 +62,7 @@ async function searchVideo(query) {
     };
 
     queryCache.set(query, result);
+    pruneCache(queryCache, MAX_QUERY_CACHE);
     return result;
   } catch (err) {
     return searchVideoFallback(query);
@@ -68,6 +81,7 @@ async function searchVideoFallback(query) {
       thumbnail: item.thumbnail?.url || ''
     };
     queryCache.set(query, result);
+    pruneCache(queryCache, MAX_QUERY_CACHE);
     return result;
   } catch (err) {
     return null;
@@ -95,6 +109,7 @@ async function fetchVideoDetails(videoIds) {
       channel: item.snippet?.channelTitle || '',
       thumbnail: item.snippet?.thumbnails?.medium?.url || ''
     });
+    pruneCache(videoCache, MAX_VIDEO_CACHE);
   });
 
   return items;

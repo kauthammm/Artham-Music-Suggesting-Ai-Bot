@@ -1,11 +1,13 @@
 const axios = require('axios');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const { config, isPlaceholder } = require('../../config');
+
+const GEMINI_API_KEY = config.gemini.apiKey;
+const GEMINI_MODEL = config.gemini.model;
 
 function isConfigured() {
   if (!GEMINI_API_KEY) return false;
-  if (GEMINI_API_KEY.toLowerCase().includes('your-')) return false;
+  if (isPlaceholder(GEMINI_API_KEY)) return false;
   return GEMINI_API_KEY.length > 20;
 }
 

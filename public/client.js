@@ -7,6 +7,9 @@ const streamMessages = new Map();
 let selectedMood = null;
 let selectedLanguage = null;
 
+// Guards against accidental double-submit (keypress + form submit)
+let lastChatSubmit = { text: '', at: 0 };
+
 // Initialize Unified Music Player
 let musicPlayer = null;
 
@@ -93,7 +96,7 @@ function initializeEventListeners() {
     const chatForm = document.getElementById('chatForm');
     if (chatForm) {
         console.log('Chat form found, adding listener');
-        chatForm.addEventListener('submit', handleChatSubmit);
+        chatForm.addEventListener('submit', window.handleChatSubmit);
     } else {
         console.error('Chat form not found!');
     }
@@ -147,6 +150,13 @@ window.handleChatSubmit = async function(e) {
     console.log('Message:', message);
     
     if (message) {
+        const now = Date.now();
+        if (lastChatSubmit.text === message && (now - lastChatSubmit.at) < 500) {
+            console.warn('Ignoring duplicate submit');
+            return;
+        }
+        lastChatSubmit = { text: message, at: now };
+
         addMessage(message, 'user');
         input.value = '';
         
@@ -573,6 +583,8 @@ function finalizeStreamingMessage(streamId, finalText) {
     state.text = finalText || state.text;
     state.content.textContent = state.text;
     state.container.classList.remove('streaming');
+    // Avoid leaking stream state objects for long sessions.
+    streamMessages.delete(streamId);
 }
 
 function removeStreamingMessage(streamId) {

@@ -34,7 +34,11 @@ async function runChat(messages, userContext = {}) {
       continue;
     }
     try {
-      const result = await withRetry(() => provider.client.chat(conversation, { temperature: 0.7 }), 2);
+      const result = await withRetry(
+        () => provider.client.chat(conversation, { temperature: 0.7 }),
+        2,
+        { shouldRetry }
+      );
       return await normalizeResult(result, provider.name);
     } catch (error) {
       lastError = error;
@@ -55,14 +59,22 @@ async function streamChat(messages, userContext = {}, onToken) {
 
     try {
       if (provider.client.stream) {
-        const result = await withRetry(() => provider.client.stream(conversation, {
-          temperature: 0.7,
-          onToken
-        }), 1);
+        const result = await withRetry(
+          () => provider.client.stream(conversation, {
+            temperature: 0.7,
+            onToken
+          }),
+          1,
+          { shouldRetry }
+        );
         return await normalizeResult(result, provider.name);
       }
 
-      const result = await withRetry(() => provider.client.chat(conversation, { temperature: 0.7 }), 2);
+      const result = await withRetry(
+        () => provider.client.chat(conversation, { temperature: 0.7 }),
+        2,
+        { shouldRetry }
+      );
       await streamText(result.fullResponse || '', onToken);
       return await normalizeResult(result, provider.name);
     } catch (error) {
@@ -115,13 +127,32 @@ function stripMusicControl(text) {
   return text.replace(/```music-control[\s\S]*?```/g, '').trim();
 }
 
-async function withRetry(fn, retries) {
+function shouldRetry(error) {
+  if (!error) return true;
+  const status = error.response?.status;
+  if (status) {
+    if (status === 429) return true;
+    if (status >= 500) return true;
+    return false; // 4xx are usually non-transient (invalid key, bad request, etc.)
+  }
+
+  const code = String(error.code || '').toUpperCase();
+  if (['ECONNRESET', 'ETIMEDOUT', 'EAI_AGAIN', 'ENOTFOUND', 'ECONNABORTED'].includes(code)) return true;
+  const msg = String(error.message || '').toLowerCase();
+  if (msg.includes('timeout') || msg.includes('network')) return true;
+  return false;
+}
+
+async function withRetry(fn, retries, options = {}) {
+  const should = options.shouldRetry || (() => true);
   let attempt = 0;
   while (attempt <= retries) {
     try {
       return await fn();
     } catch (error) {
       if (attempt === retries) throw error;
+      if (!should(error)) throw error;
+
       const delay = 300 * (attempt + 1);
       await new Promise((resolve) => setTimeout(resolve, delay));
       attempt += 1;
